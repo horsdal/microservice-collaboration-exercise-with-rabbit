@@ -1,7 +1,14 @@
 ﻿namespace LoyaltyProgramMicroservice
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading.Tasks;
     using EasyNetQ;
+    using Newtonsoft.Json;
+    using SpecialOffersContract;
 
     class Program
     {
@@ -17,10 +24,30 @@
                     new LoyaltyProgramSettings("Cycling", "Chocolate", "Dance", "Software")),
                 new LoyaltyProgramUser(5, "Dan", 100, new LoyaltyProgramSettings("Beer", "Golf", "Music", "Footbal")),
             };
+        
+        private static HttpClient Client = new HttpClient();
 
         public static void Main(string[] args)
         {
             var bus = RabbitHutch.CreateBus("host=192.168.99.100");
+            bus.SubscribeAsync<SpecialOffer>("LoyaltyProgramSubscriber", HandleEvents);
+        }
+
+        private static Task HandleEvents(SpecialOffer arg)
+        {
+            Console.WriteLine("handling evens");
+            var usersToNotifiy = RegisteredUser.Where(u => u.Settings.Interests.Intersect(arg.Keywords).Any());
+            return Task.WhenAll(
+                usersToNotifiy.Select(NotifyUser));
+        }
+
+        private static Task<HttpResponseMessage> NotifyUser(LoyaltyProgramUser user)
+        {
+            var notificationServiceUri = new Uri("http://localhost:5001/notifications");
+            var notificationBody = JsonConvert.SerializeObject(new {Type = "email", Name = user.Name});
+            Console.WriteLine($"Posting to notification service: {notificationServiceUri}, {notificationBody}");
+            return Client.PostAsync(notificationServiceUri,
+                new StringContent(notificationBody, Encoding.UTF8, "application/json"));
         }
     }
 

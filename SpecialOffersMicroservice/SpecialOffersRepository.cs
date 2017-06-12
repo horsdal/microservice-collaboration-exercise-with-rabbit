@@ -4,6 +4,7 @@ namespace SpecialOffersMicroservice
   using System.Linq;
   using System.Threading.Tasks;
   using EasyNetQ;
+  using SpecialOffersContract;
 
   public interface ISpecialOffersRepository
   {

@@ -3,6 +3,7 @@ namespace SpecialOffersMicroservice
   using System.Threading.Tasks;
   using Nancy;
   using Nancy.ModelBinding;
+  using SpecialOffersContract;
 
   public class SpecialOffersModule : NancyModule
   {

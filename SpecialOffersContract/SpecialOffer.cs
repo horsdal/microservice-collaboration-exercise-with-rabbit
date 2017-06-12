@@ -1,4 +1,4 @@
-namespace SpecialOffersMicroservice
+namespace SpecialOffersContract
 {
   using System.Collections.Generic;
 
@@ -18,6 +18,7 @@ namespace SpecialOffersMicroservice
 
     public SpecialOffer()
     {
+      
     }
 
     public void AssingId(int id)
