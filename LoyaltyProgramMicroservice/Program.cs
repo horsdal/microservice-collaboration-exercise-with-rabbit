@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using EasyNetQ;
     using Newtonsoft.Json;
+    using Polly;
     using SpecialOffersContract;
 
     class Program
@@ -26,6 +27,11 @@
             };
         
         private static HttpClient Client = new HttpClient();
+
+        private static Policy RetryPolicy =
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(100));
 
         public static void Main(string[] args)
         {
@@ -46,8 +52,14 @@
             var notificationServiceUri = new Uri("http://localhost:5001/notifications");
             var notificationBody = JsonConvert.SerializeObject(new {Type = "email", Name = user.Name});
             Console.WriteLine($"Posting to notification service: {notificationServiceUri}, {notificationBody}");
-            return Client.PostAsync(notificationServiceUri,
-                new StringContent(notificationBody, Encoding.UTF8, "application/json"));
+            return
+                RetryPolicy.ExecuteAsync(async () =>
+                {
+                    var res = await Client.PostAsync(notificationServiceUri,
+                        new StringContent(notificationBody, Encoding.UTF8, "application/json"));
+                    res.EnsureSuccessStatusCode();
+                    return res;
+                });
         }
     }
 
