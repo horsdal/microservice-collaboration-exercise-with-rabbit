@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="EasyNetQ" Version="2.0.4-*" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
-    <PackageReference Include="microsoft.aspnetcore.owin" Version="1.1.2" />
+    <PackageReference Include="microsoft.aspnetcore.owin" Version="3.1.8" />
     <PackageReference Include="nancy" Version="2.0.0-clinteastwood" />
   </ItemGroup>
 </Project>
